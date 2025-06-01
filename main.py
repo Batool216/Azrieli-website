@@ -288,7 +288,8 @@ def test_helping_page_valid1(driver):
 
         driver.find_element(By.LINK_TEXT, "כאן").click()
     except Exception as e:
-        print("Test 10 Failed:", e)
+        print("Test 1 Failed:", e)
+
 
 # === LOGIN FIXTURE ===
 @pytest.fixture
@@ -391,7 +392,6 @@ def test_open_Model_site(logged_in_driver):
     except Exception as e:
         print("Opening Moodle site failed:", e)
         raise
-
 
 
 def test_open_course_sites(logged_in_driver):
