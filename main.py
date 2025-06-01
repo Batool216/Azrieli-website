@@ -288,4 +288,151 @@ def test_helping_page_valid1(driver):
 
         driver.find_element(By.LINK_TEXT, "כאן").click()
     except Exception as e:
-        print("Test 1 Failed:", e)
+        print("Test 10 Failed:", e)
+
+# === LOGIN FIXTURE ===
+@pytest.fixture
+def logged_in_driver(driver):
+    wait = WebDriverWait(driver, 50)
+    try:
+        wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "כניסה למערכת"))).click()
+
+        username = wait.until(EC.presence_of_element_located((By.ID, "i0116")))
+        username.clear()
+        username.send_keys("batoolab@post.jce.ac.il")
+        time.sleep(3)
+
+        wait.until(EC.element_to_be_clickable((By.ID, "idSIButton9"))).click()
+
+        password = wait.until(EC.presence_of_element_located((By.ID, "i0118")))
+        password.clear()
+        password.send_keys("ILOVEmyself213*")
+        time.sleep(3)
+
+        wait.until(EC.element_to_be_clickable((By.ID, "idSIButton9"))).click()
+        time.sleep(3)
+
+        target_element = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="idDiv_SAOTCS_Proofs"]/div[2]/div/div/div[2]/div')))
+        target_element.click()
+
+        confirm_button = wait.until(EC.element_to_be_clickable((By.ID, "idSIButton9")))
+        confirm_button.click()
+
+        return driver
+    except Exception as e:
+        print("Login failed:", e)
+        raise
+
+# === MAIN TEST FUNCTION ===
+def test_check_assignments(logged_in_driver):
+    driver = logged_in_driver
+    wait = WebDriverWait(driver, 20)
+
+    try:
+        # Click "אתרי קורסים"
+        courses = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//span[text()='אתרי קורסים']/ancestor::button")))
+        courses.click()
+
+        # Click "הגשת עבודות"
+        assignments = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="TMenu9"]/div/div[5]/button')))
+        assignments.click()
+
+        # Select semester 1
+        semester_dropdown = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="select2-R1C2-container"]')))
+        semester_dropdown.click()
+        wait.until(EC.element_to_be_clickable((By.XPATH, "//li[text()='1']"))).click()
+
+        # Select year 2023
+        year_dropdown = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="select2-R1C5-container"]')))
+        year_dropdown.click()
+        wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//li[contains(text(),'2023')]"))).click()
+
+        # Click "מעבר שנה"
+        year_button = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="main-content"]/article/form/div[2]/input[1]')))
+        year_button.click()
+
+        # Expand assignment section
+        expand_section = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="H3_1"]')))
+        expand_section.click()
+
+    except Exception as e:
+        print("Assignment check failed:", e)
+        raise
+
+
+def test_open_Model_site(logged_in_driver):
+    driver = logged_in_driver
+    wait = WebDriverWait(driver, 20)
+
+    try:
+        # Click "אתרי קורסים"
+        courses = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//span[text()='אתרי קורסים']/ancestor::button")))
+        courses.click()
+        time.sleep(1)
+
+        # Click "מעבר למודל" (first item in the dropdown)
+        model_button = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="TMenu9"]/div/div[1]/button')))
+        model_button.click()
+        time.sleep(2)
+
+        # Optionally, assert that Moodle page has opened
+        # For example:
+        assert "moodle" in driver.current_url.lower() or "מודל" in driver.page_source
+
+    except Exception as e:
+        print("Opening Moodle site failed:", e)
+        raise
+
+
+
+def test_open_course_sites(logged_in_driver):
+    driver = logged_in_driver
+    wait = WebDriverWait(driver, 20)
+
+    try:
+        # Click "אתרי קורסים"
+        courses = driver.find_element(By.XPATH, "//span[text()='אתרי קורסים']/ancestor::button")
+        courses.click()
+        time.sleep(1)
+
+        # Click "כניסה לאתרי קורסים"
+        course_sites = driver.find_element(By.XPATH, '//*[@id="TMenu9"]/div/div[2]/button')
+        course_sites.click()
+        time.sleep(1)
+
+        # Select Semester (1)
+        semester_dropdown = driver.find_element(By.XPATH, '//*[@id="select2-R1C2-container"]')
+        semester_dropdown.click()
+        time.sleep(1)
+        driver.find_element(By.XPATH, "//li[text()='1']").click()
+        time.sleep(1)
+
+        # Select Year (e.g., 2023)
+        year_dropdown = driver.find_element(By.XPATH, '//*[@id="select2-R1C1-container"]')
+        year_dropdown.click()
+        time.sleep(1)
+        driver.find_element(By.XPATH, "//li[contains(text(), '2023')]").click()
+        time.sleep(1)
+
+        # Click רענון תצוגה (refresh)
+        refresh_button = driver.find_element(By.XPATH, '//*[@id="main-content"]/article/form/div[1]/div[4]/a')
+        refresh_button.click()
+        time.sleep(5)
+
+        # Click the + to expand course list
+        driver.find_element(By.XPATH, '//*[@id="ID_20241"]').click()
+        time.sleep(2)
+
+
+    except Exception as e:
+        print("Opening course sites failed:", e)
+        raise
